@@ -29,6 +29,22 @@
         <item>Эдоская конвенция (7\u00b022\u2032 под горизонтом)</item>
     </string-array>
 
+    <string name="chimes">Колокола</string>
+    <string name="chime">Часовой колокол</string>
+    <string name="chime_ex">Бить традиционное число ударов каждого часа</string>
+    <string name="chime_when">Когда бить</string>
+    <string-array name="chime_when_names">
+        <item>Начало часа</item>
+        <item>Середина часа (время колокола)</item>
+        <item>И то, и другое</item>
+    </string-array>
+    <string name="chime_builtin">Встроенный храмовый колокол</string>
+    <string name="chime_sound">Звук колокола</string>
+    <string name="quiet">Тихие часы</string>
+    <string name="quiet_ex">Не звонить в эти часы</string>
+    <string name="quiet_from">Тихо с</string>
+    <string name="quiet_to">Тихо до</string>
+
     <string-array name="hour_name_option_names">
         <item>По умолчанию</item>
         <item>Ромадзи</item>

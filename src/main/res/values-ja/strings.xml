@@ -29,6 +29,22 @@
         <item>明け六つ・暮れ六つ（地平線下7\u00b022\u2032）</item>
     </string-array>
 
+    <string name="chimes">時の鐘</string>
+    <string name="chime">時の鐘を鳴らす</string>
+    <string name="chime_ex">各刻の伝統的な打数を鳴らす</string>
+    <string name="chime_when">鳴らす時点</string>
+    <string-array name="chime_when_names">
+        <item>刻の始め</item>
+        <item>正刻</item>
+        <item>両方</item>
+    </string-array>
+    <string name="chime_builtin">内蔵の梵鐘</string>
+    <string name="chime_sound">鐘の音</string>
+    <string name="quiet">消音時間</string>
+    <string name="quiet_ex">この時間帯は鳴らさない</string>
+    <string name="quiet_from">開始</string>
+    <string name="quiet_to">終了</string>
+
     <string-array name="hour_name_option_names">
         <item>デフォルト</item>
         <item>ローマ字</item>

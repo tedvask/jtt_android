@@ -40,6 +40,7 @@ public class JttService extends Service implements SharedPreferences.OnSharedPre
             status_notify.release();
             status_notify = null;
         }
+        toggle_chime(false);
         unregisterReceiver(on);
         unregisterReceiver(off);
     }
@@ -52,6 +53,7 @@ public class JttService extends Service implements SharedPreferences.OnSharedPre
         pref.registerOnSharedPreferenceChangeListener(this);
 
         toggle_notify(pref.getBoolean("jtt_notify", true));
+        toggle_chime(pref.getBoolean(Settings.PREF_CHIME, false));
 
         return START_STICKY;
     }
@@ -68,6 +70,18 @@ public class JttService extends Service implements SharedPreferences.OnSharedPre
             }
         }
         Log.i("jtt", "Toggle notify to "+status_notify);
+    }
+
+    private Chimer chimer;
+
+    private void toggle_chime(boolean enable) {
+        if (chimer == null) {
+            if (enable)
+                chimer = new Chimer(this);
+        } else if (!enable) {
+            chimer.release();
+            chimer = null;
+        }
     }
 
     private final BroadcastReceiver on = new BroadcastReceiver() {
@@ -89,6 +103,9 @@ public class JttService extends Service implements SharedPreferences.OnSharedPre
             case Settings.PREF_LOCATION:
             case Settings.PREF_BOUNDARY:
                 ticker.start();
+                break;
+            case Settings.PREF_CHIME:
+                toggle_chime(pref.getBoolean(Settings.PREF_CHIME, false));
                 break;
             case Settings.PREF_WIDGET:
             case Settings.PREF_LOCALE:

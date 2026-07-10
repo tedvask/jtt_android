@@ -29,6 +29,22 @@
         <item>Edo convention (sun 7\u00b022\u2032 below horizon)</item>
     </string-array>
 
+    <string name="chimes">Chimes</string>
+    <string name="chime">Hourly bell</string>
+    <string name="chime_ex">Strike the traditional bell count of each hour</string>
+    <string name="chime_when">Chime at</string>
+    <string-array name="chime_when_names">
+        <item>Hour start</item>
+        <item>Hour centre (bell time)</item>
+        <item>Both</item>
+    </string-array>
+    <string name="chime_builtin">Built-in temple bell</string>
+    <string name="chime_sound">Chime sound</string>
+    <string name="quiet">Quiet hours</string>
+    <string name="quiet_ex">No chimes during these hours</string>
+    <string name="quiet_from">Quiet from</string>
+    <string name="quiet_to">Quiet until</string>
+
     <string-array name="hour_name_option_names">
         <item>Default</item>
         <item>Romaji</item>

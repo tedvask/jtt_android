@@ -9,6 +9,13 @@ import android.preference.PreferenceManager;
 public class Settings {
     public static final String PREF_LOCATION = "jtt_loc";
     public static final String PREF_BOUNDARY = "jtt_day_boundary";
+    public static final String PREF_CHIME = "jtt_chime";
+    public static final String PREF_CHIME_WHEN = "jtt_chime_when";
+    public static final String PREF_CHIME_BUILTIN = "jtt_chime_builtin";
+    public static final String PREF_CHIME_RINGTONE = "jtt_chime_ringtone";
+    public static final String PREF_QUIET = "jtt_quiet";
+    public static final String PREF_QUIET_FROM = "jtt_quiet_from";
+    public static final String PREF_QUIET_TO = "jtt_quiet_to";
     public static final String PREF_LOCALE = "jtt_locale";
     public static final String PREF_HNAME = "jtt_hname";
     public static final String PREF_NOTIFY = "jtt_notify";

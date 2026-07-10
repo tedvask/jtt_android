@@ -37,6 +37,62 @@
 
     </PreferenceCategory>
 
+  <PreferenceCategory android:title="@string/chimes" >
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="jtt_chime"
+        android:summary="@string/chime_ex"
+        android:title="@string/chime" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:dependency="jtt_chime"
+        android:entries="@array/chime_when_names"
+        android:entryValues="@array/array_of_3"
+        android:key="jtt_chime_when"
+        android:title="@string/chime_when" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="jtt_chime"
+        android:disableDependentsState="true"
+        android:key="jtt_chime_builtin"
+        android:title="@string/chime_builtin" />
+
+    <RingtonePreference
+        android:dependency="jtt_chime_builtin"
+        android:key="jtt_chime_ringtone"
+        android:ringtoneType="notification|alarm"
+        android:showDefault="false"
+        android:showSilent="false"
+        android:title="@string/chime_sound" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:dependency="jtt_chime"
+        android:key="jtt_quiet"
+        android:summary="@string/quiet_ex"
+        android:title="@string/quiet" />
+
+    <ListPreference
+        android:defaultValue="23"
+        android:dependency="jtt_quiet"
+        android:entries="@array/hours_of_day_names"
+        android:entryValues="@array/hours_of_day"
+        android:key="jtt_quiet_from"
+        android:title="@string/quiet_from" />
+
+    <ListPreference
+        android:defaultValue="7"
+        android:dependency="jtt_quiet"
+        android:entries="@array/hours_of_day_names"
+        android:entryValues="@array/hours_of_day"
+        android:key="jtt_quiet_to"
+        android:title="@string/quiet_to" />
+
+  </PreferenceCategory>
+
   <PreferenceCategory android:title="@string/appearance" >
 
     <CheckBoxPreference

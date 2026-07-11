@@ -42,6 +42,27 @@ public class ChimeLogicTest {
         assertEquals(23, chimes);
     }
 
+    @Test public void bellTimestampIsTheHourCentre() {
+        long[] tr = {-120000, 0, 240000, 360000}; // 1000 ms per tick
+        // hour 1 of the night interval: centre at tick 40
+        assertEquals(40000, ChimeLogic.bellTimestamp(tr, false, 20));
+        assertEquals(40000, ChimeLogic.bellTimestamp(tr, false, 59));
+        // seam: the last tick of the interval points at its far edge
+        assertEquals(240000, ChimeLogic.bellTimestamp(tr, false, 239));
+        // day interval wraps at 240
+        assertEquals(0, ChimeLogic.bellTimestamp(tr, true, 240));
+    }
+
+    @Test public void bellIsNeverFurtherThanHalfAnHour() {
+        long[] tr = {-120000, 0, 240000, 360000};
+        for (int w = 0; w < Hour.TICKS_PER_DAY; w++) {
+            boolean day = w >= Hour.TICKS_PER_INTERVAL;
+            long now = (day ? w - Hour.TICKS_PER_INTERVAL : w) * 1000L;
+            long bell = ChimeLogic.bellTimestamp(tr, day, w);
+            assertTrue(Math.abs(bell - now) <= 20000);
+        }
+    }
+
     @Test public void quietWindowWrapsMidnight() {
         assertTrue(ChimeLogic.isQuiet(23, 23, 7));
         assertTrue(ChimeLogic.isQuiet(3, 23, 7));

@@ -5,7 +5,9 @@ package com.aragaer.jtt;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.aragaer.jtt.core.ChimeLogic;
 import com.aragaer.jtt.core.Hour;
+import com.aragaer.jtt.core.ThreeIntervals;
 import com.aragaer.jtt.graphics.Paints;
 import com.aragaer.jtt.graphics.WadokeiDraw;
 import com.aragaer.jtt.mechanics.AndroidTicker;
@@ -34,6 +36,7 @@ public class JTTWidgetProvider {
 	private static final class WidgetHolder {
 		final ComponentName cn;
 		Hour last_update;
+		long bell_time;
 		final WidgetPainter painter;
 		final int granularity;
 
@@ -95,6 +98,10 @@ public class JTTWidgetProvider {
         if (hour.equals(holder.last_update))
             return;
         holder.last_update = hour;
+        ThreeIntervals intervals = (ThreeIntervals) i.getSerializableExtra("intervals");
+        if (intervals != null)
+            holder.bell_time = ChimeLogic.bellTimestamp(
+                intervals.getTransitions(), intervals.isDay(), wrapped);
 		draw(c, null, holder);
 	}
 
@@ -127,6 +134,14 @@ public class JTTWidgetProvider {
 			text_paint.setTextSize(holder.painter.get_text_size() * c.getResources().getDisplayMetrics().density);
 
 			canvas.drawText(text, canvas.getWidth() / 2f, (canvas.getHeight() - text_paint.ascent() - text_paint.descent()) / 2f, text_paint);
+			if (holder.bell_time != 0) {
+				String bell = RuntimeResources.get(c).getStringResources()
+					.format_time(holder.bell_time);
+				text_paint.setTextSize(holder.painter.get_text_size()
+					* c.getResources().getDisplayMetrics().density / 2.8f);
+				canvas.drawText(bell, canvas.getWidth() / 2f,
+					canvas.getHeight() * 0.8f, text_paint);
+			}
 			rv.setImageViewBitmap(R.id.clock, bmp);
 		}
 		PendingIntent pendingIntent = PendingIntent.getActivity(c, 0, new Intent(c, JTTMainActivity.class), 0);

@@ -3,11 +3,13 @@
 package com.aragaer.jtt.today;
 
 import com.aragaer.jtt.R;
+import com.aragaer.jtt.Settings;
 import com.aragaer.jtt.core.Hour;
 import com.aragaer.jtt.core.ThreeIntervals;
 import com.aragaer.jtt.resources.StringResources;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -25,10 +27,29 @@ public class TodayAdapter extends ArrayAdapter<TodayItem> implements
         super(c, layout_id);
         sr.registerStringResourceChangeListener(this,
                                                 StringResources.TYPE_HOUR_NAME | StringResources.TYPE_TIME_FORMAT);
-        HourItem.extras = new String[] { c.getString(R.string.sunset), "", "",
+        String mark;
+        try {
+            mark = boundaryMark(PreferenceManager.getDefaultSharedPreferences(c)
+                                    .getString(Settings.PREF_BOUNDARY, "0"));
+        } catch (RuntimeException e) {
+            // Android statics are unavailable in JVM unit tests
+            mark = "";
+        }
+        HourItem.extras = new String[] { c.getString(R.string.sunset) + mark, "", "",
                                          c.getString(R.string.midnight), "", "",
-                                         c.getString(R.string.sunrise), "", "",
+                                         c.getString(R.string.sunrise) + mark, "", "",
                                          c.getString(R.string.noon), "", "" };
+    }
+
+    /* package private */ static String boundaryMark(String boundaryMode) {
+        switch (boundaryMode) {
+        case "1":
+            return " (6°)";
+        case "2":
+            return " (7°22′)";
+        default:
+            return "";
+        }
     }
 
     @Override

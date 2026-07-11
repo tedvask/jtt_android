@@ -31,7 +31,8 @@ class HourItem extends TodayItem {
         ((TextView) v.findViewById(R.id.glyph)).setText(Hour.Glyphs[hnum]);
         ((TextView) v.findViewById(R.id.name)).setText(sr.getHrOf(hnum));
         ((TextView) v.findViewById(R.id.extra)).setText(extras[hnum]);
-        ((TextView) v.findViewById(R.id.curr)).setText(sel_p_diff == 0 ? "▶" : "");
+        /* The item's timestamp is the hour's centre - the bell moment. */
+        ((TextView) v.findViewById(R.id.curr)).setText(sr.format_time(time));
 
         return v;
     }

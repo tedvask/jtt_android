@@ -29,6 +29,7 @@
         <item>明け六つ・暮れ六つ（地平線下7\u00b022\u2032）</item>
     </string-array>
 
+    <string name="bell_short">鐘</string>
     <string name="chimes">時の鐘</string>
     <string name="chime">時の鐘を鳴らす</string>
     <string name="chime_ex">各刻の伝統的な打数を鳴らす</string>

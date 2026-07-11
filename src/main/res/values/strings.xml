@@ -29,6 +29,7 @@
         <item>Edo convention (sun 7\u00b022\u2032 below horizon)</item>
     </string-array>
 
+    <string name="bell_short">bell</string>
     <string name="chimes">Chimes</string>
     <string name="chime">Hourly bell</string>
     <string name="chime_ex">Strike the traditional bell count of each hour</string>

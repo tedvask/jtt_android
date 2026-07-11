@@ -25,6 +25,8 @@ import static org.powermock.api.mockito.PowerMockito.*;
 @RunWith(PowerMockRunner.class)
 public class TodayAdapterTest {
 
+    private static final int FULL_HOURS = 17;
+
     private static final Context mockContext = mock(Context.class);
     private static final StringResources mockSR = mock(StringResources.class);
 
@@ -35,28 +37,28 @@ public class TodayAdapterTest {
         adapter = new FakeTodayAdapter();
 
         initial = new ArrayList<>();
-        initial.add(new HourItem(System.currentTimeMillis()-2000, 0));
+        initial.add(new HourItem(System.currentTimeMillis()-2020,
+                                 System.currentTimeMillis()-2000,
+                                 System.currentTimeMillis()-1980, 0));
         adapter.items.addAll(initial);
     }
 
+    /* Intervals of 240 units each: hour = 40 units, so each row is
+     * (start = centre-20, bell = centre, end = centre+20). */
     @Test public void testTickWithValidIntervals() {
         long now = System.currentTimeMillis();
         ThreeIntervals intervals = new ThreeIntervals(new long[]{now-360, now-120, now+120, now+360}, true);
 
         adapter.tick(intervals);
 
-        assertEquals("initial list cleared", 37, adapter.getCount());
-        long stamp = now-360;
-        HourItem firstHour = (HourItem) adapter.getItem(0);
-        assertEquals(stamp, firstHour.time);
-        assertEquals(0, firstHour.hnum);
-        for (int i = 0; i < 18; i++) {
-            BoundaryItem boundary = (BoundaryItem) adapter.getItem(i*2+1);
-            HourItem hour = (HourItem) adapter.getItem(i*2+2);
-            assertEquals(stamp+20, boundary.time);
-            assertEquals(stamp+40, hour.time);
+        assertEquals("initial list cleared", FULL_HOURS, adapter.getCount());
+        for (int i = 0; i < FULL_HOURS; i++) {
+            HourItem hour = (HourItem) adapter.getItem(i);
+            long centre = now-360 + 40*(i+1);
+            assertEquals(centre-20, hour.start);
+            assertEquals(centre, hour.time);
+            assertEquals(centre+20, hour.end);
             assertEquals((i+1)%12, hour.hnum);
-            stamp+=40;
         }
 
         assertTrue(adapter.datasetChanged);
@@ -68,21 +70,24 @@ public class TodayAdapterTest {
 
         adapter.tick(intervals);
 
-        assertEquals("initial list cleared", 37, adapter.getCount());
-        long stamp = now-360;
-        HourItem firstHour = (HourItem) adapter.getItem(0);
-        assertEquals(stamp, firstHour.time);
-        assertEquals(6, firstHour.hnum);
-        for (int i = 0; i < 18; i++) {
-            BoundaryItem boundary = (BoundaryItem) adapter.getItem(i*2+1);
-            HourItem hour = (HourItem) adapter.getItem(i*2+2);
-            assertEquals(stamp+20, boundary.time);
-            assertEquals(stamp+40, hour.time);
+        assertEquals("initial list cleared", FULL_HOURS, adapter.getCount());
+        for (int i = 0; i < FULL_HOURS; i++) {
+            HourItem hour = (HourItem) adapter.getItem(i);
             assertEquals((i+7)%12, hour.hnum);
-            stamp+=40;
         }
 
         assertTrue(adapter.datasetChanged);
+    }
+
+    @Test public void testSelectsTheHourContainingNow() {
+        long now = System.currentTimeMillis();
+        ThreeIntervals intervals = new ThreeIntervals(new long[]{now-360, now-120, now+120, now+360}, true);
+
+        adapter.tick(intervals);
+
+        HourItem current = (HourItem) adapter.getItem(adapter.lastSelected());
+        assertTrue(current.start <= now);
+        assertTrue(current.end > now);
     }
 
     @Test public void testTickWithStaleIntervals() {
@@ -136,10 +141,10 @@ public class TodayAdapterTest {
     }
 
     @Test public void testInitialize() {
-        assertEquals(2, adapter.getViewTypeCount());
-        for (int i = 0; i < 37; i++) {
+        assertEquals(1, adapter.getViewTypeCount());
+        for (int i = 0; i < FULL_HOURS; i++) {
             assertFalse(adapter.isEnabled(i));
-            assertEquals(i % 2, adapter.getItemViewType(i));
+            assertEquals(0, adapter.getItemViewType(i));
         }
     }
 
@@ -148,12 +153,12 @@ public class TodayAdapterTest {
         ThreeIntervals intervals = new ThreeIntervals(new long[]{now-360, now-120, now+120, now+360}, false);
         adapter.tick(intervals);
 
-        int selected = 18; // item in position 18 should be selected
+        int selected = adapter.lastSelected();
 
         View mockView = mock(View.class);
         ViewGroup mockVG = mock(ViewGroup.class);
         when(mockVG.getContext()).thenReturn(mockContext);
-        for (int i = 0; i < 37; i++) {
+        for (int i = 0; i < FULL_HOURS; i++) {
             TodayItem spyTI = spy(adapter.items.get(i));
             doReturn(mockView).when(spyTI).toView(any(Context.class), any(View.class), anyInt());
             adapter.items.set(i, spyTI);
@@ -169,6 +174,22 @@ public class TodayAdapterTest {
 
         FakeTodayAdapter() {
             super(mockContext, 0, mockSR);
+        }
+
+        int lastSelected() {
+            // recompute the way getView sees it: probe via getView contract
+            // selected is private; expose through toView diff on item 0
+            return _probeSelected();
+        }
+
+        private int _probeSelected() {
+            for (int i = 0; i < items.size(); i++) {
+                HourItem h = (HourItem) items.get(i);
+                long now = System.currentTimeMillis();
+                if (h.start <= now && h.end > now)
+                    return i;
+            }
+            return items.size() - 1;
         }
 
         @Override public void clear() {

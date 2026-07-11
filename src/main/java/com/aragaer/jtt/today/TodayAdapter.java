@@ -20,6 +20,10 @@ import java.lang.System;
 
 public class TodayAdapter extends ArrayAdapter<TodayItem> implements
                                                               StringResources.StringResourceChangeListener {
+    /* Centres per the three intervals: 19; full hours between them: 17. */
+    private static final int CENTRES = Hour.HOURS_PER_INTERVAL * 3 + 1;
+    private static final int FULL_HOURS = CENTRES - 2;
+
     private ThreeIntervals _intervals;
     private int selected;
 
@@ -44,9 +48,9 @@ public class TodayAdapter extends ArrayAdapter<TodayItem> implements
     /* package private */ static String boundaryMark(String boundaryMode) {
         switch (boundaryMode) {
         case "1":
-            return " (6°)";
+            return " (6\u00b0)";
         case "2":
-            return " (7°22′)";
+            return " (7\u00b022\u2032)";
         default:
             return "";
         }
@@ -60,26 +64,32 @@ public class TodayAdapter extends ArrayAdapter<TodayItem> implements
         return item.toView(parent.getContext(), v, selected - position);
     }
 
-    /* takes a sublist of hours
-     * creates a list to display by adding day names
-     */
+    /* Walks the three intervals and emits one self-contained row per
+     * fully-defined hour: its start boundary, bell (centre), and end
+     * boundary.  The two edge hours around transitions[0]/[3] lack one
+     * boundary and are dropped; "now" always lies in the middle
+     * interval, far from the edges. */
     private synchronized void buildItems() {
         final long[] transitions = _intervals.getTransitions();
         clear();
 
-        int h_add = _intervals.isDay() ? 0 : Hour.HOURS_PER_INTERVAL;
-
-        /* start with first transition */
-        add(new HourItem(transitions[0], h_add));
+        final int hours = Hour.HOURS_PER_INTERVAL;
+        long[] centres = new long[CENTRES];
+        long[] bounds = new long[CENTRES - 1]; // bounds[k] precedes centres[k+1]
+        int k = 0;
+        centres[k++] = transitions[0];
         for (int i = 1; i < transitions.length; i++) {
             final long start = transitions[i - 1];
             final long diff = transitions[i] - start;
-            for (int j = 1; j <= Hour.HOURS_PER_INTERVAL; j++) {
-                add(new BoundaryItem(start + (j * 2 - 1) * diff / Hour.HOURS_PER_INTERVAL / 2));
-                add(new HourItem(start + j * diff / Hour.HOURS_PER_INTERVAL, h_add + j));
+            for (int j = 1; j <= hours; j++) {
+                bounds[k - 1] = start + (j * 2 - 1) * diff / hours / 2;
+                centres[k++] = start + j * diff / hours;
             }
-            h_add = Hour.HOURS_PER_INTERVAL - h_add;
         }
+
+        int h_add = _intervals.isDay() ? 0 : hours;
+        for (int c = 1; c <= FULL_HOURS; c++)
+            add(new HourItem(bounds[c - 1], centres[c], bounds[c], h_add + c));
     }
 
     public void tick(ThreeIntervals intervals) {
@@ -93,16 +103,14 @@ public class TodayAdapter extends ArrayAdapter<TodayItem> implements
         }
 
         // check that items are built
-        // expect 37 items
-        if (getCount() < Hour.HOURS_PER_INTERVAL * 3 * 2 - 1)
+        if (getCount() < FULL_HOURS)
             // transitions are set but items aren't built
             // this means we're currently in the build process
             return;
 
-        // odd items - boundaries
-        for (selected = 0; selected < getCount() - 1; selected += 2) {
-            TodayItem item = getItem(selected + 1);
-            if (item == null || item.time >= now)
+        for (selected = 0; selected < getCount() - 1; selected++) {
+            HourItem item = (HourItem) getItem(selected);
+            if (item == null || item.end > now)
                 break;
         }
 
@@ -120,11 +128,11 @@ public class TodayAdapter extends ArrayAdapter<TodayItem> implements
 
     @Override
     public int getViewTypeCount() {
-        return 2; // hours and borders
+        return 1;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return position % 2; // 0 for hours, 1 for borders
+        return 0;
     }
 }

@@ -1,40 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="wrap_content"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:paddingLeft="6dp"
+    android:paddingRight="7dp" >
 
     <TextView
         android:id="@+id/curr"
-        android:layout_width="@dimen/today_time_width"
+        android:layout_width="16dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:gravity="right"
         android:singleLine="true" />
 
     <TextView
         android:id="@+id/glyph"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="@dimen/today_glyph_size"
-        android:layout_marginTop="-3dp"
-        android:layout_marginLeft="7dp"
-        android:layout_marginRight="5dp"/>
-
-    <TextView
-        android:id="@+id/name"
-        android:textSize="@dimen/today_text_size"
         android:layout_gravity="center_vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textSize="@dimen/today_glyph_size" />
 
     <TextView
-        android:id="@+id/extra"
-        android:textSize="@dimen/today_text_size"
-        android:layout_width="fill_parent"
+        android:id="@+id/count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:paddingBottom="2dp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="8dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/today_text_size" />
+
+        <TextView
+            android:id="@+id/meta"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/status"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:gravity="right"
-        android:layout_marginRight="7dp"/>
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/extra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="12sp" />
+    </LinearLayout>
 
 </LinearLayout>

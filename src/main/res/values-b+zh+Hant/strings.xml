@@ -81,6 +81,7 @@
         <item>淺色調</item>
     </string-array>
 
+    <string name="bell_short">鐘</string>
     <string name="pref_theme">樣式</string>
     <string name="pref_widget">小工具的樣式</string>
 

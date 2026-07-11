@@ -56,7 +56,6 @@ public class MainFragment extends Fragment {
         final ListView today_list = new ListView(getActivity());
         today = new TodayAdapter(getActivity(), 0, RuntimeResources.get(getActivity()).getStringResources());
         today_list.setAdapter(today);
-        today_list.setDividerHeight(-getResources().getDimensionPixelSize(R.dimen.today_divider_neg));
         if (intervals != null)
             today.tick(intervals);
 

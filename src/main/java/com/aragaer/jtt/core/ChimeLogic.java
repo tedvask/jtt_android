@@ -10,6 +10,11 @@ public class ChimeLogic {
      * (0 = Cock ... 11 = Monkey): 9 at Rat/Horse descending to 4. */
     private static final int[] BELLS = {6, 5, 4, 9, 8, 7, 6, 5, 4, 9, 8, 7};
 
+    /* Traditional strike count of the hour, by Hour.num. */
+    public static int bellsFor(int hourNum) {
+        return BELLS[hourNum];
+    }
+
     /* Returns the number of strikes due at this tick, or 0. */
     public static int strikesFor(int prevWrapped, int wrapped, int mode) {
         if (prevWrapped < 0 || prevWrapped == wrapped)

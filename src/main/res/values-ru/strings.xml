@@ -29,6 +29,7 @@
         <item>Эдоская конвенция (7\u00b022\u2032 под горизонтом)</item>
     </string-array>
 
+    <string name="bell_short">звон</string>
     <string name="chimes">Колокола</string>
     <string name="chime">Часовой колокол</string>
     <string name="chime_ex">Бить традиционное число ударов каждого часа</string>

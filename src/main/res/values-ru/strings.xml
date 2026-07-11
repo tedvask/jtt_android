@@ -38,6 +38,20 @@
         <item>Середина часа (время колокола)</item>
         <item>И то, и другое</item>
     </string-array>
+    <string name="location_denied">Нет разрешения на геолокацию</string>
+    <string name="chime_output">Чем оповещать</string>
+    <string-array name="chime_output_names">
+        <item>Звуком</item>
+        <item>Уведомлением</item>
+        <item>Звуком и уведомлением</item>
+    </string-array>
+    <plurals name="chime_strikes">
+        <item quantity="one">%d удар</item>
+        <item quantity="few">%d удара</item>
+        <item quantity="many">%d ударов</item>
+        <item quantity="other">%d удара</item>
+    </plurals>
+
     <string name="chime_builtin">Встроенный храмовый колокол</string>
     <string name="chime_sound">Звук колокола</string>
     <string name="quiet">Тихие часы</string>

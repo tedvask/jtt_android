@@ -38,6 +38,18 @@
         <item>Hour centre (bell time)</item>
         <item>Both</item>
     </string-array>
+    <string name="location_denied">Location permission denied</string>
+    <string name="chime_output">Chime with</string>
+    <string-array name="chime_output_names">
+        <item>Sound</item>
+        <item>Notification</item>
+        <item>Sound and notification</item>
+    </string-array>
+    <plurals name="chime_strikes">
+        <item quantity="one">%d strike</item>
+        <item quantity="other">%d strikes</item>
+    </plurals>
+
     <string name="chime_builtin">Built-in temple bell</string>
     <string name="chime_sound">Chime sound</string>
     <string name="quiet">Quiet hours</string>

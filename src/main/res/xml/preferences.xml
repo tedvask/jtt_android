@@ -53,6 +53,14 @@
         android:key="jtt_chime_when"
         android:title="@string/chime_when" />
 
+    <ListPreference
+        android:defaultValue="0"
+        android:dependency="jtt_chime"
+        android:entries="@array/chime_output_names"
+        android:entryValues="@array/array_of_3"
+        android:key="jtt_chime_output"
+        android:title="@string/chime_output" />
+
     <CheckBoxPreference
         android:defaultValue="true"
         android:dependency="jtt_chime"

@@ -38,6 +38,17 @@
         <item>正刻</item>
         <item>両方</item>
     </string-array>
+    <string name="location_denied">位置情報の権限がありません</string>
+    <string name="chime_output">通知方法</string>
+    <string-array name="chime_output_names">
+        <item>音</item>
+        <item>通知</item>
+        <item>音と通知</item>
+    </string-array>
+    <plurals name="chime_strikes">
+        <item quantity="other">%d打</item>
+    </plurals>
+
     <string name="chime_builtin">内蔵の梵鐘</string>
     <string name="chime_sound">鐘の音</string>
     <string name="quiet">消音時間</string>

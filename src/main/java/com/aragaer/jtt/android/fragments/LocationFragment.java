@@ -61,6 +61,14 @@ public class LocationFragment extends PreferenceFragment implements Preference.O
         menu.clear();
     }
 
+    /* For computing sunrise/sunset, a city-level fix from the last
+     * quarter of an hour is more than precise enough. */
+    private static final long FRESH_FIX_MS = TimeUnit.MINUTES.toMillis(15);
+
+    private static final String[] PROVIDERS = {
+        LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER,
+    };
+
     private boolean canUseLocation() {
         Log.d("JTT LOCATION", "Checking location service access");
 
@@ -69,18 +77,11 @@ public class LocationFragment extends PreferenceFragment implements Preference.O
         if (lm == null)
             return false;
 
-        String provider = null;
-        String permission = Manifest.permission.ACCESS_COARSE_LOCATION;
+        boolean anyProvider = false;
+        for (String provider : PROVIDERS)
+            anyProvider |= lm.isProviderEnabled(provider);
 
-        if (lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            provider = LocationManager.NETWORK_PROVIDER;
-        } else {
-            permission = Manifest.permission.ACCESS_FINE_LOCATION;
-            if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER))
-                provider = LocationManager.GPS_PROVIDER;
-        }
-
-        if (provider == null) {
+        if (!anyProvider) {
             Log.d("JTT LOCATION", "No provider found");
             Toast.makeText(getActivity(), R.string.no_providers, Toast.LENGTH_SHORT).show();
             getActivity().startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
@@ -88,50 +89,78 @@ public class LocationFragment extends PreferenceFragment implements Preference.O
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getActivity().checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-                Log.d("JTT LOCATION", "Requesting permission for " + provider);
-                requestPermissions(new String[]{permission}, 0);
+            boolean fine = getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+            boolean coarse = getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+            if (!fine && !coarse) {
+                Log.d("JTT LOCATION", "Requesting location permissions");
+                // Both are requested so that "approximate only" on
+                // Android 12+ still counts as success.
+                requestPermissions(new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
                 return false;
-            } else
-                Log.d("JTT LOCATION", "Permission granted");
+            }
+            Log.d("JTT LOCATION", "Permission granted (fine=" + fine + ")");
         }
         return true;
     }
 
-    private void getLocation() throws SecurityException {
+    private void getLocation() {
         LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         if (lm == null)
             return;
 
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        String provider = lm.getBestProvider(criteria, true);
-        if (provider == null)
-            return;
-
-        Log.d("JTT LOCATION", "will use provider " + provider);
-
-        Location last = lm.getLastKnownLocation(provider);
-
         LocationPreference pref = (LocationPreference) findPreference(Settings.PREF_LOCATION);
-        if (last != null && last.getTime() > System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(5)) {
-            Log.d("JTT LOCATION", "Got last location, that's good enough");
-            pref.setNewLocation(last);
+
+        // A recent last-known fix resolves instantly, without the dialog.
+        Location best = null;
+        for (String provider : new String[] {LocationManager.NETWORK_PROVIDER,
+                                             LocationManager.GPS_PROVIDER, "fused"})
+            try {
+                Location last = lm.getLastKnownLocation(provider);
+                if (last != null && (best == null || last.getTime() > best.getTime()))
+                    best = last;
+            } catch (SecurityException | IllegalArgumentException e) {
+                // provider missing or not permitted - skip it
+            }
+        if (best != null && best.getTime() > System.currentTimeMillis() - FRESH_FIX_MS) {
+            Log.d("JTT LOCATION", "Got a recent last known location");
+            pref.setNewLocation(best);
             return;
         }
 
+        // Otherwise listen on every enabled provider we validated above -
+        // never on getBestProvider's pick, which may be gps indoors or
+        // the passive provider that fires for nobody.
         WaitingForLocationDialog dialog = new WaitingForLocationDialog(getActivity());
         dialog.setPreference(pref);
         dialog.show();
-        Log.d("JTT LOCATION", "Start requesting updates");
-        lm.requestLocationUpdates(provider, 0, 0, dialog);
+        boolean requested = false;
+        for (String provider : PROVIDERS)
+            if (lm.isProviderEnabled(provider))
+                try {
+                    Log.d("JTT LOCATION", "Requesting updates from " + provider);
+                    lm.requestLocationUpdates(provider, 0, 0, dialog);
+                    requested = true;
+                } catch (SecurityException e) {
+                    Log.d("JTT LOCATION", "Not permitted: " + provider);
+                }
+        if (!requested) {
+            dialog.dismiss();
+            Toast.makeText(getActivity(), R.string.location_denied, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
-        Log.d("JTT LOCATION", "Got permission result: " + grantResults[0]);
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            getLocation();
+        for (int result : grantResults)
+            if (result == PackageManager.PERMISSION_GRANTED) {
+                getLocation();
+                return;
+            }
+        Toast.makeText(getActivity(), R.string.location_denied, Toast.LENGTH_SHORT).show();
     }
 
     @Override

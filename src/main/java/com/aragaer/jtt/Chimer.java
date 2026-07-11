@@ -3,24 +3,38 @@
 package com.aragaer.jtt;
 
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
+
 import com.aragaer.jtt.core.ChimeLogic;
+import com.aragaer.jtt.core.Hour;
 import com.aragaer.jtt.mechanics.AndroidTicker;
+import com.aragaer.jtt.resources.RuntimeResources;
 
 
 public class Chimer extends BroadcastReceiver {
     private static final long STRIKE_INTERVAL_MS = 3000;
+    private static final int OUT_SOUND = 0, OUT_NOTIFY = 1, OUT_BOTH = 2;
+    private static final int NOTIFICATION_ID = 2;
+    private static final String CHANNEL_ID = "jtt_chime_channel";
 
     private final JttService context;
     private final SharedPreferences pref;
@@ -30,12 +44,14 @@ public class Chimer extends BroadcastReceiver {
     public Chimer(final JttService ctx) {
         context = ctx;
         pref = PreferenceManager.getDefaultSharedPreferences(ctx);
+        createNotificationChannel();
         context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
     }
 
     public void release() {
         context.unregisterReceiver(this);
         handler.removeCallbacksAndMessages(null);
+        deleteNotificationChannel();
     }
 
     @Override public void onReceive(Context ctx, Intent intent) {
@@ -56,7 +72,54 @@ public class Chimer extends BroadcastReceiver {
             if (ChimeLogic.isQuiet(hourOfDay, from, to))
                 return;
         }
-        strike(strikes);
+        final int output = parseInt(pref.getString(Settings.PREF_CHIME_OUTPUT, "0"), OUT_SOUND);
+        if (output == OUT_SOUND || output == OUT_BOTH)
+            strike(strikes);
+        if (output == OUT_NOTIFY || output == OUT_BOTH)
+            notifyChime(Hour.fromTickNumber(wrapped).num, strikes);
+    }
+
+    private void notifyChime(final int hourNum, final int strikes) {
+        NotificationManager nm =
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null)
+            return;
+        String strikesText = context.getResources()
+            .getQuantityString(R.plurals.chime_strikes, strikes, strikes);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+            .setSmallIcon(R.drawable.notification_icon, hourNum)
+            .setContentTitle(Hour.Glyphs[hourNum] + " " +
+                RuntimeResources.get(context).getStringResources().getHrOf(hourNum))
+            .setContentText(strikesText)
+            .setAutoCancel(true)
+            .setContentIntent(PendingIntent.getActivity(context, 0,
+                new Intent(context, JTTMainActivity.class), 0))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setChannelId(CHANNEL_ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            builder.setTimeoutAfter(TimeUnit.MINUTES.toMillis(30));
+        nm.notify(NOTIFICATION_ID, builder.getNotification());
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            return;
+        NotificationManager nm =
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null)
+            return;
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+            context.getString(R.string.chimes), NotificationManager.IMPORTANCE_LOW);
+        nm.createNotificationChannel(channel);
+    }
+
+    private void deleteNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
+            return;
+        NotificationManager nm =
+            (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null)
+            nm.deleteNotificationChannel(CHANNEL_ID);
     }
 
     private void strike(final int count) {

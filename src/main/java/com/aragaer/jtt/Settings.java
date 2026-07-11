@@ -11,6 +11,7 @@ public class Settings {
     public static final String PREF_BOUNDARY = "jtt_day_boundary";
     public static final String PREF_CHIME = "jtt_chime";
     public static final String PREF_CHIME_WHEN = "jtt_chime_when";
+    public static final String PREF_CHIME_OUTPUT = "jtt_chime_output";
     public static final String PREF_CHIME_BUILTIN = "jtt_chime_builtin";
     public static final String PREF_CHIME_RINGTONE = "jtt_chime_ringtone";
     public static final String PREF_QUIET = "jtt_quiet";

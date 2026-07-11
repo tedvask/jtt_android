@@ -21,7 +21,8 @@ public class SettingsFragment extends PreferenceFragment implements OnPreference
             Settings.PREF_LOCALE, Settings.PREF_HNAME,
             Settings.PREF_THEME, Settings.PREF_WIDGET,
             Settings.PREF_EMOJI_WIDGET, Settings.PREF_BOUNDARY,
-            Settings.PREF_CHIME_WHEN, Settings.PREF_QUIET_FROM, Settings.PREF_QUIET_TO};
+            Settings.PREF_CHIME_WHEN, Settings.PREF_CHIME_OUTPUT,
+            Settings.PREF_QUIET_FROM, Settings.PREF_QUIET_TO};
 
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference instanceof ListPreference) {

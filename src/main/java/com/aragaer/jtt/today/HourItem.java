@@ -12,6 +12,7 @@ import com.aragaer.jtt.resources.RuntimeResources;
 import com.aragaer.jtt.resources.StringResources;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.widget.TextView;
 import android.view.View;
 
@@ -46,10 +47,15 @@ class HourItem extends TodayItem {
             v = View.inflate(c, R.layout.today_item, null);
         final StringResources sr = RuntimeResources.get(c).getStringResources();
 
-        ((TextView) v.findViewById(R.id.curr)).setText(sel_p_diff == 0 ? "\u25b6" : "");
+        final boolean current = sel_p_diff == 0;
+        // Recycled views must reset every current-hour signal explicitly.
+        v.setBackgroundColor(current ? 0x18888888 : 0x00000000);
+        ((TextView) v.findViewById(R.id.curr)).setText(current ? "\u25b6" : "");
         ((TextView) v.findViewById(R.id.glyph)).setText(Hour.Glyphs[hnum]);
         ((TextView) v.findViewById(R.id.count)).setText(String.valueOf(ChimeLogic.bellsFor(hnum)));
-        ((TextView) v.findViewById(R.id.name)).setText(sr.getHrOf(hnum));
+        TextView name = (TextView) v.findViewById(R.id.name);
+        name.setText(sr.getHrOf(hnum));
+        name.setTypeface(null, current ? Typeface.BOLD : Typeface.NORMAL);
 
         StringBuilder meta = new StringBuilder();
         for (String segment : metaSegments(c, sr)) {

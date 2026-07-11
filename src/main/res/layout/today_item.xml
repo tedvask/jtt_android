@@ -9,10 +9,11 @@
 
     <TextView
         android:id="@+id/curr"
-        android:layout_width="16dp"
+        android:layout_width="22dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:singleLine="true" />
+        android:singleLine="true"
+        android:textSize="@dimen/today_text_size" />
 
     <TextView
         android:id="@+id/glyph"

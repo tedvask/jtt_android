@@ -5,12 +5,11 @@
 
     <TextView
         android:id="@+id/curr"
-        android:textSize="@dimen/today_text_size"
         android:layout_width="@dimen/today_time_width"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
         android:layout_gravity="center_vertical"
-        android:gravity="right" />
+        android:gravity="right"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/glyph"

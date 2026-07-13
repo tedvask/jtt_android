@@ -64,7 +64,11 @@ public class MainFragment extends Fragment {
 
         pager.setAdapter(pager_adapter);
         pager.setCurrentItem(page, false);
-        getActivity().registerReceiver(receiver, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
+        if (android.os.Build.VERSION.SDK_INT >= 33)
+            getActivity().registerReceiver(receiver, new IntentFilter(AndroidTicker.ACTION_JTT_TICK),
+                    Context.RECEIVER_NOT_EXPORTED);
+        else
+            getActivity().registerReceiver(receiver, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
         return pager;
     }
 

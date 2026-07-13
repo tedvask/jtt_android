@@ -25,6 +25,10 @@ public class JTTMainActivity extends Activity implements SharedPreferences.OnSha
             startForegroundService(serviceIntent);
         else
             startService(serviceIntent);
+        if (Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+                        != android.content.pm.PackageManager.PERMISSION_GRANTED)
+            requestPermissions(new String[] { android.Manifest.permission.POST_NOTIFICATIONS }, 1);
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         pref.registerOnSharedPreferenceChangeListener(this);
         if (savedInstanceState == null) { // Otherwise we assume that fragments are saved/restored

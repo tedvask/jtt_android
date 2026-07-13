@@ -16,10 +16,15 @@ public class TimeChangeReceiver extends BroadcastReceiver {
         if (Intent.ACTION_TIME_CHANGED.equals(action)
             || Intent.ACTION_DATE_CHANGED.equals(action)) {
             Intent serviceIntent = new Intent(context, JttService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-                context.startForegroundService(serviceIntent);
-            else
-                context.startService(serviceIntent);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    context.startForegroundService(serviceIntent);
+                else
+                    context.startService(serviceIntent);
+            } catch (IllegalStateException e) {
+                // target 31+: background FGS start may be restricted; the
+                // running sticky service picks the time change up anyway.
+            }
         }
     }
 }

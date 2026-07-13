@@ -45,7 +45,11 @@ public class Chimer extends BroadcastReceiver {
         context = ctx;
         pref = PreferenceManager.getDefaultSharedPreferences(ctx);
         createNotificationChannel();
-        context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
+        if (android.os.Build.VERSION.SDK_INT >= 33)
+            context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK),
+                    android.content.Context.RECEIVER_NOT_EXPORTED);
+        else
+            context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
     }
 
     public void release() {
@@ -93,7 +97,8 @@ public class Chimer extends BroadcastReceiver {
             .setContentText(strikesText)
             .setAutoCancel(true)
             .setContentIntent(PendingIntent.getActivity(context, 0,
-                new Intent(context, JTTMainActivity.class), 0))
+                new Intent(context, JTTMainActivity.class),
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setChannelId(CHANNEL_ID);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)

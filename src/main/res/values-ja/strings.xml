@@ -120,4 +120,5 @@
     <string name="pref_theme">スタイル</string>
     <string name="pref_widget">ウィジェットのスタイル</string>
 
+    <string name="notification_bell">鐘 %s</string>
 </resources>

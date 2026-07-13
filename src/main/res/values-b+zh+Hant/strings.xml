@@ -85,4 +85,5 @@
     <string name="pref_theme">樣式</string>
     <string name="pref_widget">小工具的樣式</string>
 
+    <string name="notification_bell">鐘 %s</string>
 </resources>

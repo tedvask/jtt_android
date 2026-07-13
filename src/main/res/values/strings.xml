@@ -121,4 +121,5 @@
     <string name="pref_theme">Theme</string>
     <string name="pref_widget">Widget theme</string>
 
+    <string name="notification_bell">bell %s</string>
 </resources>

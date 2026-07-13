@@ -24,6 +24,8 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
     private final StringResources sr;
     private Hour h = new Hour(0);
     private long start, end;
+    private ThreeIntervals lastIntervals;
+    private int lastWrapped = -1;
     private final NotificationManager nm;
 
     public JttStatus(final JttService ctx) {
@@ -34,7 +36,11 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
         sr.registerStringResourceChangeListener(this,
                                                 StringResources.TYPE_HOUR_NAME | StringResources.TYPE_TIME_FORMAT);
 
-        context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
+        if (Build.VERSION.SDK_INT >= 33)
+            context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK),
+                                     Context.RECEIVER_NOT_EXPORTED);
+        else
+            context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
     }
 
     public void release() {
@@ -59,7 +65,9 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
         ThreeIntervals data = (ThreeIntervals) intent.getSerializableExtra("intervals");
         if (data == null)
             return;
-        Hour hour = Hour.fromTickNumber(intent.getIntExtra("jtt", 0));
+        lastIntervals = data;
+        lastWrapped = intent.getIntExtra("jtt", 0);
+        Hour hour = Hour.fromTickNumber(lastWrapped);
         setIntervals(data, hour);
     }
 
@@ -82,7 +90,16 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
     }
 
     private void show() {
-        context.startForeground(APP_ID, buildNotification());
+        try {
+            if (Build.VERSION.SDK_INT >= 34)
+                context.startForeground(APP_ID, buildNotification(),
+                        android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            else
+                context.startForeground(APP_ID, buildNotification());
+        } catch (IllegalStateException e) {
+            // target 31+: FGS start from background may be restricted;
+            // the next tick with the app foregrounded promotes it again.
+        }
     }
 
     private void createNotificationChannel() {
@@ -99,24 +116,45 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
             nm.deleteNotificationChannel(CHANNEL_ID);
     }
 
+    private String bellText() {
+        if (lastIntervals == null)
+            return null;
+        final long bellTs = ChimeLogic.bellTimestamp(
+                lastIntervals.getTransitions(), lastIntervals.isDay(), lastWrapped);
+        return context.getString(R.string.notification_bell, sr.format_time(bellTs));
+    }
+
     private Notification buildNotification() {
         int hf = h.quarter * Hour.TICKS_PER_QUARTER + h.tick;
-        RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.notification);
+        final String bell = bellText();
 
-        rv.setTextViewText(R.id.image, Hour.Glyphs[h.num]);
-        rv.setTextViewText(R.id.title, sr.getHrOf(h.num));
-        rv.setTextViewText(R.id.quarter, sr.getQuarter(h.quarter));
-        rv.setProgressBar(R.id.fraction, Hour.TICKS_PER_HOUR, hf, false);
-        rv.setProgressBar(R.id.fraction, Hour.TICKS_PER_HOUR, hf, false);
-        rv.setTextViewText(R.id.start, sr.format_time(start));
-        rv.setTextViewText(R.id.end, sr.format_time(end));
+        // expanded: the classic full view
+        RemoteViews big = new RemoteViews(context.getPackageName(), R.layout.notification);
+        big.setTextViewText(R.id.image, Hour.Glyphs[h.num]);
+        big.setTextViewText(R.id.title, sr.getHrOf(h.num));
+        big.setTextViewText(R.id.quarter,
+                bell != null ? bell : sr.getQuarter(h.quarter));
+        big.setProgressBar(R.id.fraction, Hour.TICKS_PER_HOUR, hf, false);
+        big.setTextViewText(R.id.start, sr.format_time(start));
+        big.setTextViewText(R.id.end, sr.format_time(end));
+
+        // collapsed: one honest line - glyph, hour name, bell time
+        RemoteViews compact = new RemoteViews(context.getPackageName(), R.layout.notification_compact);
+        compact.setTextViewText(R.id.image, Hour.Glyphs[h.num]);
+        compact.setTextViewText(R.id.title, sr.getHrOf(h.num));
+        compact.setTextViewText(R.id.bounds,
+                sr.format_time(start) + "\u2013" + sr.format_time(end));
+        compact.setTextViewText(R.id.bell, bell != null ? bell : "");
 
         return new NotificationCompat.Builder(context)
-            .setContent(rv)
+            .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(compact)
+            .setCustomBigContentView(big)
             .setOngoing(true)
             .setSmallIcon(R.drawable.notification_icon, h.num)
             .setContentIntent(PendingIntent.getActivity(context, 0,
-                                                        new Intent(context, JTTMainActivity.class), 0))
+                                                        new Intent(context, JTTMainActivity.class),
+                                                        Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0))
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setChannelId(CHANNEL_ID)
             .getNotification();

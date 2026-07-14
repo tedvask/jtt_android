@@ -41,6 +41,10 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
                                      Context.RECEIVER_NOT_EXPORTED);
         else
             context.registerReceiver(this, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
+
+        android.content.Intent last = com.aragaer.jtt.mechanics.AndroidAnnouncer.getLastTick();
+        if (last != null)
+            onReceive(context, last);
     }
 
     public void release() {
@@ -55,20 +59,31 @@ public class JttStatus extends BroadcastReceiver implements StringResourceChange
         if (!AndroidTicker.ACTION_JTT_TICK.equals(action))
             return;
 
-        // FIXME: kicking widgets from here
-        Intent widgetIntent = new Intent(intent);
-        widgetIntent.setClass(ctx, JTTWidgetProvider.Widget1.class);
-        ctx.sendBroadcast(widgetIntent);
-        widgetIntent.setClass(ctx, JTTWidgetProvider.Widget12.class);
-        ctx.sendBroadcast(widgetIntent);
+        final int wrapped = intent.getIntExtra("jtt", -1);
+        if (wrapped >= 0)
+            lastWrapped = wrapped;
+        final ThreeIntervals data = (ThreeIntervals) intent.getSerializableExtra("intervals");
+        if (data != null)
+            lastIntervals = data;
 
-        ThreeIntervals data = (ThreeIntervals) intent.getSerializableExtra("intervals");
-        if (data == null)
+        // FIXME: kicking widgets from here
+        try {
+            Intent widgetIntent = new Intent(intent);
+            widgetIntent.setClass(ctx, JTTWidgetProvider.Widget1.class);
+            ctx.sendBroadcast(widgetIntent);
+            widgetIntent.setClass(ctx, JTTWidgetProvider.Widget12.class);
+            ctx.sendBroadcast(widgetIntent);
+        } catch (Throwable t) {
+            android.util.Log.e("jtt", "widget kick failed", t);
+        }
+
+        if (lastIntervals == null || lastWrapped < 0)
             return;
-        lastIntervals = data;
-        lastWrapped = intent.getIntExtra("jtt", 0);
-        Hour hour = Hour.fromTickNumber(lastWrapped);
-        setIntervals(data, hour);
+        try {
+            setIntervals(lastIntervals, Hour.fromTickNumber(lastWrapped));
+        } catch (Throwable t) {
+            android.util.Log.e("jtt", "status update failed", t);
+        }
     }
 
     private void setIntervals(ThreeIntervals intervals, Hour hour) {

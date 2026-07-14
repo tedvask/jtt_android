@@ -2,50 +2,73 @@
 // vim: et ts=4 sts=4 sw=4 syntax=java
 package com.aragaer.jtt.mechanics;
 
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-
 import com.aragaer.jtt.core.Clockwork;
 
-import android.os.Handler;
-import android.os.Message;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 
-
-public class AndroidTicker extends Handler implements Ticker {
+/* One mechanism, no races: every tick is an exact alarm.  Alarm fires
+ * (unfreezing the process if an OEM battery manager froze it), we
+ * announce and arm the next one.  That's all. */
+public class AndroidTicker implements Ticker {
     public static final String ACTION_JTT_TICK = "com.aragaer.jtt.action.TICK";
+
+    static volatile AndroidTicker instance;
 
     private final Clockwork _clockwork;
     private final Announcer _announcer;
+    private final AlarmManager _am;
+    private final PendingIntent _pi;
 
-    public AndroidTicker(Clockwork clockwork, Announcer announcer) {
+    public AndroidTicker(Context context, Clockwork clockwork, Announcer announcer) {
         _clockwork = clockwork;
         _announcer = announcer;
+        _am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 23)
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        _pi = PendingIntent.getBroadcast(context, 0,
+                new Intent(context, TickAlarmReceiver.class), flags);
+        instance = this;
     }
 
     public void start() {
-        sendEmptyMessage(0);
+        tick();
     }
 
     public void stop() {
-        removeMessages(0);
+        _am.cancel(_pi);
     }
 
-    @Override public void handleMessage(@NonNull Message msg) {
-        removeMessages(0);
-        Log.d("JTT CLOCKWORK", "Handler ticked");
+    void tick() {
         long now = System.currentTimeMillis();
         _clockwork.setTime(now);
+        long next = ((now - _clockwork.start) / _clockwork.repeat + 1)
+                * _clockwork.repeat + _clockwork.start;
+        arm(next);
+        Log.i("jttclock", "armed next in " + (next - now) + " ms");
+        try {
+            _announcer.announce(now);
+        } catch (Throwable t) {
+            Log.e("jttclock", "announce FAILED", t);
+        }
+    }
 
-        long ms_passed = now - _clockwork.start;
-        int ticks_passed = (int) (ms_passed / _clockwork.repeat);
-        long next_tick = (ticks_passed + 1) * _clockwork.repeat + _clockwork.start;
-        long delay = next_tick - now;
-        sendEmptyMessageDelayed(0, delay);
-        Log.d("JTT CLOCKWORK", "Tick delay " + delay);
-        Log.d("JTT CLOCKWORK", "Next tick scheduled at "+(new SimpleDateFormat("HH:mm:ss.SSS", Locale.US).format(next_tick)));
-        _announcer.announce(now);
+    private void arm(long at) {
+        try {
+            if (Build.VERSION.SDK_INT >= 31 && !_am.canScheduleExactAlarms())
+                _am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, _pi);
+            else if (Build.VERSION.SDK_INT >= 23)
+                _am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, _pi);
+            else
+                _am.set(AlarmManager.RTC_WAKEUP, at, _pi);
+        } catch (SecurityException e) {
+            _am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, _pi);
+        }
     }
 }

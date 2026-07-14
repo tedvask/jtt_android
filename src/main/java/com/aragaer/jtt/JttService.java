@@ -91,7 +91,7 @@ public class JttService extends Service implements SharedPreferences.OnSharedPre
         };
     private final BroadcastReceiver off = new BroadcastReceiver() {
             @Override public void onReceive(Context context, Intent intent) {
-                ticker.stop();
+                // alarm-driven ticker keeps running with the screen off
             }
         };
 

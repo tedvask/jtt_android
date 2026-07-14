@@ -69,6 +69,10 @@ public class MainFragment extends Fragment {
                     Context.RECEIVER_NOT_EXPORTED);
         else
             getActivity().registerReceiver(receiver, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
+
+        android.content.Intent last = com.aragaer.jtt.mechanics.AndroidAnnouncer.getLastTick();
+        if (last != null)
+            receiver.onReceive(getActivity(), last);
         return pager;
     }
 

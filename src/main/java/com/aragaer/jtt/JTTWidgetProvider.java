@@ -36,6 +36,10 @@ public class JTTWidgetProvider {
 	private static final String PKG_NAME = "com.aragaer.jtt";
 	private static final int ACCENT = 0xFFFFC15E; // gold: strikes, bell diamond
 
+	// last tick, pushed by JttStatus with every ACTION_JTT_TICK kick
+	private static volatile int sWrapped = -1;
+	private static volatile ThreeIntervals sIntervals;
+
 	private static final class WidgetHolder {
 		final ComponentName cn;
 		final boolean wide;
@@ -64,13 +68,27 @@ public class JTTWidgetProvider {
 			final String action = i.getAction();
 			if (action == null)
 				return;
-			if (action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
-					|| action.equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)
-					|| action.equals(AndroidTicker.ACTION_JTT_TICK))
-				update(c, i);
+			try {
+				if (action.equals(AndroidTicker.ACTION_JTT_TICK)) {
+					final int wrapped = i.getIntExtra("jtt", -1);
+					if (wrapped >= 0)
+						sWrapped = wrapped;
+					final ThreeIntervals ti = (ThreeIntervals) i.getSerializableExtra("intervals");
+					if (ti != null)
+						sIntervals = ti;
+					draw(c, null, classes.get(getClass()));
+				} else if (action.equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)
+						|| action.equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)) {
+					startTicker(c);
+					draw(c, i.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS),
+							classes.get(getClass()));
+				}
+			} catch (Throwable t) {
+				android.util.Log.e("jtt", "widget onReceive failed", t);
+			}
 		}
 
-		private void update(Context c, Intent i) {
+		private void startTicker(Context c) {
 			Intent intent = new Intent(c, JttService.class);
 			try {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -81,8 +99,6 @@ public class JTTWidgetProvider {
 				// target 31+: background FGS start may be restricted; the
 				// widget still draws, service resumes on next app open/boot.
 			}
-			int[] ids = i.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-			draw(c, ids, classes.get(getClass()));
 		}
 	}
 
@@ -93,16 +109,14 @@ public class JTTWidgetProvider {
 		if (ids.length == 0)
 			return;
 
-		// pull the latest tick from the sticky broadcast
-		final Intent tick = c.getApplicationContext()
-				.registerReceiver(null, new IntentFilter(AndroidTicker.ACTION_JTT_TICK));
-		final int wrapped = tick == null ? -1 : tick.getIntExtra("jtt", -1);
+		final int wrapped = sWrapped;
+		final ThreeIntervals intervals = sIntervals;
 
 		final PendingIntent pi = PendingIntent.getActivity(c, 0,
 				new Intent(c, JTTMainActivity.class),
 				Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
 
-		if (wrapped < 0) {
+		if (wrapped < 0) { // no tick pushed yet - keep the loading face
 			final RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.widget_loading);
 			rv.setOnClickPendingIntent(R.id.clock, pi);
 			for (int id : ids)
@@ -110,25 +124,28 @@ public class JTTWidgetProvider {
 			return;
 		}
 
-		final ThreeIntervals intervals = (ThreeIntervals) tick.getSerializableExtra("intervals");
 		final float density = c.getResources().getDisplayMetrics().density;
 
 		for (int id : ids) {
-			final Bundle opt = awm.getAppWidgetOptions(id);
-			int wdp = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0);
-			int hdp = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0);
-			if (wdp <= 0) wdp = holder.wide ? 250 : 120;
-			if (hdp <= 0) hdp = 60;
-			wdp = Math.max(100, Math.min(wdp, 500));
-			hdp = Math.max(44, Math.min(hdp, 200));
+			try {
+				final Bundle opt = awm.getAppWidgetOptions(id);
+				int wdp = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0);
+				int hdp = opt == null ? 0 : opt.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 0);
+				if (wdp <= 0) wdp = holder.wide ? 250 : 120;
+				if (hdp <= 0) hdp = 60;
+				wdp = Math.max(100, Math.min(wdp, 500));
+				hdp = Math.max(44, Math.min(hdp, 200));
 
-			final Bitmap bmp = render(c, wrapped, intervals, holder.wide,
-					Math.round(wdp * density), Math.round(hdp * density));
-			final RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.widget);
-			rv.setImageViewBitmap(R.id.clock, bmp);
-			rv.setOnClickPendingIntent(R.id.clock, pi);
-			awm.updateAppWidget(id, rv);
-			bmp.recycle();
+				final Bitmap bmp = render(c, wrapped, intervals, holder.wide,
+						Math.round(wdp * density), Math.round(hdp * density));
+				final RemoteViews rv = new RemoteViews(PKG_NAME, R.layout.widget);
+				rv.setImageViewBitmap(R.id.clock, bmp);
+				rv.setOnClickPendingIntent(R.id.clock, pi);
+				awm.updateAppWidget(id, rv);
+				bmp.recycle();
+			} catch (Throwable t) {
+				android.util.Log.e("jtt", "widget draw failed for id " + id, t);
+			}
 		}
 	}
 

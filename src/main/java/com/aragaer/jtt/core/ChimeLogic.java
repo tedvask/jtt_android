@@ -53,4 +53,37 @@ public class ChimeLogic {
             return hourOfDay >= from && hourOfDay < to;
         return hourOfDay >= from || hourOfDay < to;
     }
+
+    /* koku within the hour: 0 at hour start, 20 exactly at the bell, 39 last */
+    public static int kokuOfHour(int wrapped) {
+        return (wrapped + Hour.TICKS_PER_HOUR / 2) % Hour.TICKS_PER_HOUR;
+    }
+
+    /* vernacular Edo clock string, strike-count:koku - e.g. "7:23" */
+    public static String clockString(Hour hour) {
+        return String.format(java.util.Locale.US, "%d:%02d",
+                bellsFor(hour.num), kokuOfHour(hour.wrapped));
+    }
+
+    /* Timestamp of a tick given in middle-interval coordinates.  The
+     * four transition points cover one interval before and one after
+     * the current one, enough for the current hour plus three ahead. */
+    public static long timeOfTick(long[] transitions, int t) {
+        final int T = Hour.TICKS_PER_INTERVAL;
+        if (t < 0)
+            return transitions[0] + (t + T) * (transitions[1] - transitions[0]) / T;
+        if (t <= T)
+            return transitions[1] + t * (transitions[2] - transitions[1]) / T;
+        return transitions[2] + (t - T) * (transitions[3] - transitions[2]) / T;
+    }
+
+    /* minute-granular quiet window; from == to keeps the documented
+     * "always quiet" degenerate meaning */
+    public static boolean isQuietMinutes(int minuteOfDay, int fromMin, int toMin) {
+        if (fromMin == toMin)
+            return true;
+        if (fromMin < toMin)
+            return minuteOfDay >= fromMin && minuteOfDay < toMin;
+        return minuteOfDay >= fromMin || minuteOfDay < toMin;
+    }
 }

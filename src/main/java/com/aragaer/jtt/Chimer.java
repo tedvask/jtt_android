@@ -70,10 +70,11 @@ public class Chimer extends BroadcastReceiver {
         if (strikes == 0)
             return;
         if (pref.getBoolean(Settings.PREF_QUIET, true)) {
-            final int from = parseInt(pref.getString(Settings.PREF_QUIET_FROM, "23"), 23);
-            final int to = parseInt(pref.getString(Settings.PREF_QUIET_TO, "7"), 7);
-            final int hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-            if (ChimeLogic.isQuiet(hourOfDay, from, to))
+            final int from = Settings.getQuietFromMinutes(pref);
+            final int to = Settings.getQuietToMinutes(pref);
+            final Calendar now = Calendar.getInstance();
+            final int minuteOfDay = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+            if (ChimeLogic.isQuietMinutes(minuteOfDay, from, to))
                 return;
         }
         final int output = parseInt(pref.getString(Settings.PREF_CHIME_OUTPUT, "0"), OUT_SOUND);
@@ -84,6 +85,7 @@ public class Chimer extends BroadcastReceiver {
     }
 
     private void notifyChime(final int hourNum, final int strikes) {
+        com.aragaer.jtt.resources.StringResources.setLocaleToContext(context);
         NotificationManager nm =
             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm == null)

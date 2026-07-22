@@ -83,19 +83,15 @@
         android:summary="@string/quiet_ex"
         android:title="@string/quiet" />
 
-    <ListPreference
-        android:defaultValue="23"
+    <com.aragaer.jtt.ui.android.TimePreference
+        android:defaultValue="23:00"
         android:dependency="jtt_quiet"
-        android:entries="@array/hours_of_day_names"
-        android:entryValues="@array/hours_of_day"
         android:key="jtt_quiet_from"
         android:title="@string/quiet_from" />
 
-    <ListPreference
-        android:defaultValue="7"
+    <com.aragaer.jtt.ui.android.TimePreference
+        android:defaultValue="07:00"
         android:dependency="jtt_quiet"
-        android:entries="@array/hours_of_day_names"
-        android:entryValues="@array/hours_of_day"
         android:key="jtt_quiet_to"
         android:title="@string/quiet_to" />
 

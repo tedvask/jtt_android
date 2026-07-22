@@ -17,6 +17,28 @@ public class Settings {
     public static final String PREF_QUIET = "jtt_quiet";
     public static final String PREF_QUIET_FROM = "jtt_quiet_from";
     public static final String PREF_QUIET_TO = "jtt_quiet_to";
+
+    /* quiet bounds in minutes since midnight; legacy values were bare
+     * hours ("23"), new ones are "HH:MM" - both parse transparently */
+    public static int getQuietFromMinutes(android.content.SharedPreferences pref) {
+        return parseTimePref(pref.getString(PREF_QUIET_FROM, "23:00"), 23 * 60);
+    }
+
+    public static int getQuietToMinutes(android.content.SharedPreferences pref) {
+        return parseTimePref(pref.getString(PREF_QUIET_TO, "07:00"), 7 * 60);
+    }
+
+    public static int parseTimePref(String v, int fallback) {
+        try {
+            if (v.contains(":")) {
+                final String[] p = v.split(":");
+                return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
+            }
+            return Integer.parseInt(v) * 60; // legacy bare hour
+        } catch (Exception e) {
+            return fallback;
+        }
+    }
     public static final String PREF_LOCALE = "jtt_locale";
     public static final String PREF_HNAME = "jtt_hname";
     public static final String PREF_NOTIFY = "jtt_notify";

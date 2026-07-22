@@ -1,5 +1,4 @@
-## Japanese Traditional Time [![Build Status](https://travis-ci.org/aragaer/jtt_android.svg?branch=master)](https://travis-ci.org/aragaer/jtt_android)
-
+## Japanese Traditional Time
 Japanese Traditional Time application for android.
 
 <a href="https://f-droid.org/packages/com.aragaer.jtt/" target="_blank">

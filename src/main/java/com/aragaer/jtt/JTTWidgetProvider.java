@@ -8,6 +8,7 @@ import java.util.HashMap;
 import com.aragaer.jtt.core.ChimeLogic;
 import com.aragaer.jtt.core.Hour;
 import com.aragaer.jtt.core.ThreeIntervals;
+import com.aragaer.jtt.core.WidgetContent;
 import com.aragaer.jtt.mechanics.AndroidTicker;
 import com.aragaer.jtt.resources.RuntimeResources;
 import com.aragaer.jtt.resources.StringResources;
@@ -34,7 +35,6 @@ import android.widget.RemoteViews;
  * are honoured instead of fought. */
 public class JTTWidgetProvider {
 	private static final String PKG_NAME = "com.aragaer.jtt";
-	private static final int ACCENT = 0xFFFFC15E; // gold: strikes, bell diamond
 
 	// last tick, pushed by JttStatus with every ACTION_JTT_TICK kick
 	private static volatile int sWrapped = -1;
@@ -113,7 +113,9 @@ public class JTTWidgetProvider {
 		final ThreeIntervals intervals = sIntervals;
 
 		final PendingIntent pi = PendingIntent.getActivity(c, 0,
-				new Intent(c, JTTMainActivity.class),
+				new Intent(c, JTTMainActivity.class)
+						.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+								| android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP),
 				Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
 
 		if (wrapped < 0) { // no tick pushed yet - keep the loading face
@@ -152,6 +154,8 @@ public class JTTWidgetProvider {
 	private static Bitmap render(final Context c, final int wrapped,
 			final ThreeIntervals intervals, final boolean wide,
 			final int w, final int h) {
+		StringResources.setLocaleToContext(c);
+		final WidgetContent wc = new WidgetContent(wrapped, intervals);
 		final Hour hour = Hour.fromTickNumber(wrapped, 1);
 		final StringResources sr = RuntimeResources.get(c).getStringResources();
 
@@ -174,57 +178,64 @@ public class JTTWidgetProvider {
 		text.setColor(fgColor);
 		text.setShadowLayer(3, 0, 0, shadow);
 
-		final float pad = h * 0.16f;
-		final float topZoneMid = h * 0.38f;
+		final float pad = h * 0.14f;
 
-		// glyph + strike count (left)
+		// line 1: glyph + toki:koku left, bell right
 		text.setTextAlign(Paint.Align.LEFT);
-		text.setTextSize(h * 0.50f);
+		text.setTextSize(h * (wide ? 0.32f : 0.34f));
 		text.setFakeBoldText(true);
-		final String glyph = Hour.Glyphs[hour.num];
-		final float glyphBase = topZoneMid - (text.ascent() + text.descent()) / 2f;
-		cv.drawText(glyph, pad, glyphBase, text);
-		final float glyphEnd = pad + text.measureText(glyph);
-
-		text.setColor(ACCENT);
-		text.setTextSize(h * 0.32f);
-		final String strikes = String.valueOf(ChimeLogic.bellsFor(hour.num));
-		cv.drawText(strikes, glyphEnd + h * 0.12f,
-				topZoneMid - (text.ascent() + text.descent()) / 2f, text);
+		final String main = wc.main;
+		final float line1Base = h * (wide ? 0.34f : 0.40f);
+		cv.drawText(main, pad, line1Base, text);
 		text.setFakeBoldText(false);
 
-		// right block: bell time (+ seam on wide)
-		if (intervals != null) {
-			final long[] tr = intervals.getTransitions();
-			final long bellTs = ChimeLogic.bellTimestamp(tr, intervals.isDay(), wrapped);
-			final String bell = "\u9418 " + sr.format_time(bellTs); // 鐘
+		final float mainEnd = pad + text.measureText(main) + h * 0.25f;
+		if (wc.bell != 0) {
+			final String bell = c.getString(R.string.notification_bell, sr.format_time(wc.bell));
 			text.setTextAlign(Paint.Align.RIGHT);
-			text.setColor(ACCENT);
-			text.setTextSize(h * 0.24f);
-			if (wide) {
-				cv.drawText(bell, w - pad, h * 0.30f, text);
-				// next seam: 明 (ake-mutsu) at night, 暮 (kure-mutsu) by day
-				final String seam = (intervals.isDay() ? "\u66AE " : "\u660E ")
-						+ sr.format_time(tr[2]);
-				text.setColor(fgColor & 0x00FFFFFF | 0xA0000000);
-				text.setTextSize(h * 0.21f);
-				cv.drawText(seam, w - pad, h * 0.58f, text);
-			} else {
-				cv.drawText(bell, w - pad,
-						topZoneMid - (text.ascent() + text.descent()) / 2f, text);
+			for (float size = h * 0.22f; size >= h * 0.14f; size -= h * 0.02f) {
+				text.setTextSize(size);
+				if (text.measureText(bell) <= w - pad - mainEnd) {
+					cv.drawText(bell, w - pad, line1Base, text);
+					break;
+				}
 			}
 		}
 
+		// line 2 (wide only): hour name + civil bounds left, next seam right
+		if (wide && wc.bell != 0) {
+			text.setTextSize(h * 0.19f);
+			text.setColor(fgColor & 0x00FFFFFF | 0xB0000000);
+			final String seam = c.getString(
+					wc.seamIsDusk ? R.string.widget_dusk : R.string.widget_dawn,
+					sr.format_time(wc.seam));
+			text.setTextAlign(Paint.Align.RIGHT);
+			cv.drawText(seam, w - pad, h * 0.60f, text);
+			// left part degrades to whatever честно помещается
+			final float avail = w - pad - text.measureText(seam) - h * 0.30f - pad;
+			text.setTextAlign(Paint.Align.LEFT);
+			final String range = sr.format_time(wc.hourStart) + "\u2013" + sr.format_time(wc.hourEnd);
+			String line = sr.getHrOf(hour.num) + "  " + range;
+			if (text.measureText(line) > avail)
+				line = sr.getHrOf(hour.num) + "  "
+						+ c.getString(R.string.widget_till, sr.format_time(wc.hourEnd));
+			if (text.measureText(line) > avail)
+				line = sr.getHrOf(hour.num);
+			while (text.measureText(line) > avail && line.length() > 2)
+				line = line.substring(0, line.length() - 2) + "\u2026";
+			cv.drawText(line, pad, h * 0.60f, text);
+			text.setColor(fgColor);
+		}
+
 		// toki progress bar with quarter marks and the shoukoku diamond
-		final float barTop = h * 0.72f, barBot = h * 0.82f;
+		final float barTop = h * 0.76f, barBot = h * 0.86f;
 		final float barL = pad, barR = w - pad;
 		final Paint bar = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bar.setColor(fgColor & 0x00FFFFFF | 0x40000000);
 		cv.drawRoundRect(new RectF(barL, barTop, barR, barBot),
 				(barBot - barTop) / 2, (barBot - barTop) / 2, bar);
 
-		final float frac = (hour.quarter * Hour.TICKS_PER_QUARTER + hour.tick)
-				/ (float) Hour.TICKS_PER_HOUR;
+		final float frac = wc.fraction;
 		bar.setColor(fgColor & 0x00FFFFFF | 0xD0000000);
 		cv.drawRoundRect(new RectF(barL, barTop, barL + (barR - barL) * frac, barBot),
 				(barBot - barTop) / 2, (barBot - barTop) / 2, bar);
@@ -236,7 +247,7 @@ public class JTTWidgetProvider {
 			cv.drawLine(x, barTop - h * 0.03f, x, barBot + h * 0.03f, bar);
 		}
 
-		final float cx = (barL + barR) / 2f, cy = barTop - h * 0.09f, d = h * 0.06f;
+		final float cx = (barL + barR) / 2f, cy = barTop - h * 0.07f, d = h * 0.05f;
 		final Path diamond = new Path();
 		diamond.moveTo(cx, cy - d);
 		diamond.lineTo(cx + d, cy);
@@ -244,7 +255,7 @@ public class JTTWidgetProvider {
 		diamond.lineTo(cx - d, cy);
 		diamond.close();
 		final Paint gold = new Paint(Paint.ANTI_ALIAS_FLAG);
-		gold.setColor(ACCENT);
+		gold.setColor(fgColor);
 		cv.drawPath(diamond, gold);
 
 		return bmp;

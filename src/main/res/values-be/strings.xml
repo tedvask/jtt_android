@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Традыцыйны японскі час</string>
+    <string name="auto_lat_long">Бягучыя</string>
+    <string name="location">Каардынаты</string>
+    <string name="location_ex">Змяніць захаваныя каардынаты</string>
+    <string name="latitude">Шырата</string>
+    <string name="longitude">Даўгата</string>
+    <string name="clock">Гадзіннік</string>
+    <string name="settings">Налады</string>
+    <string name="notify">Апавяшчэнні</string>
+    <string name="notify_ex">Паказваць іерогліф бягучай гадзіны ў радку статусу.</string>
+    <string name="emoji_widget">Эмодзі ў віджэце</string>
+    <string name="emoji_widget_ex">Паказваць знак бягучай гадзіны ў віджэце эмодзі</string>
+    <string name="today">Сёння</string>
+    <string name="sunrise">Усход</string>
+    <string name="sunset">Захад</string>
+    <string name="noon">Поўдзень</string>
+    <string name="midnight">Поўнач</string>
+    <string name="hour_names">Назвы гадзін</string>
+    <string name="no_providers">Не ўдаецца вызначыць каардынаты.\nКалі ласка, уключыце службу геалакацыі.</string>
+
+    <string name="day_boundary">Мяжа дня</string>
+
+    <string-array name="day_boundary_names">
+        <item>Усход і захад</item>
+        <item>Грамадзянскае змярканне (сонца 6\u00b0 пад гарызонтам)</item>
+        <item>Эдоская канвенцыя (7\u00b022\u2032 пад гарызонтам)</item>
+    </string-array>
+
+    <string name="bell_short">звон</string>
+    <string name="chimes">Званы</string>
+    <string name="chime">Гадзінны звон</string>
+    <string name="chime_ex">Біць традыцыйную колькасць удараў кожнай гадзіны</string>
+    <string name="chime_when">Калі біць</string>
+    <string-array name="chime_when_names">
+        <item>Пачатак гадзіны</item>
+        <item>Сярэдзіна гадзіны (час звону)</item>
+        <item>І тое, і другое</item>
+    </string-array>
+    <string name="location_denied">Няма дазволу на геалакацыю</string>
+    <string name="chime_output">Чым апавяшчаць</string>
+    <string-array name="chime_output_names">
+        <item>Гукам</item>
+        <item>Апавяшчэннем</item>
+        <item>Гукам і апавяшчэннем</item>
+    </string-array>
+    <plurals name="chime_strikes">
+        <item quantity="one">%d удар</item>
+        <item quantity="few">%d удары</item>
+        <item quantity="many">%d удараў</item>
+        <item quantity="other">%d удару</item>
+    </plurals>
+
+    <string name="chime_builtin">Убудаваны храмавы звон</string>
+    <string name="chime_sound">Гук звону</string>
+    <string name="quiet">Ціхія гадзіны</string>
+    <string name="quiet_ex">Не званіць у гэты час</string>
+    <string name="quiet_from">Ціха з</string>
+    <string name="quiet_to">Ціха да</string>
+
+    <string-array name="hour_name_option_names">
+        <item>Прадвызначана</item>
+        <item>Ромадзі</item>
+        <item>Хірагана</item>
+    </string-array>
+
+    <string-array name="hour">
+        <item>Певень</item>
+        <item>Сабака</item>
+        <item>Дзік</item>
+        <item>Пацук</item>
+        <item>Вол</item>
+        <item>Тыгр</item>
+        <item>Заяц</item>
+        <item>Цмок</item>
+        <item>Змяя</item>
+        <item>Конь</item>
+        <item>Баран</item>
+        <item>Малпа</item>
+    </string-array>
+    <string-array name="hour_of">
+        <item>Гадзіна Пеўня</item>
+        <item>Гадзіна Сабакі</item>
+        <item>Гадзіна Дзіка</item>
+        <item>Гадзіна Пацука</item>
+        <item>Гадзіна Вала</item>
+        <item>Гадзіна Тыгра</item>
+        <item>Гадзіна Зайца</item>
+        <item>Гадзіна Цмока</item>
+        <item>Гадзіна Змяі</item>
+        <item>Гадзіна Каня</item>
+        <item>Гадзіна Барана</item>
+        <item>Гадзіна Малпы</item>
+    </string-array>
+    <string-array name="quarter">
+        <item>Першая чвэрць</item>
+        <item>Другая чвэрць</item>
+        <item>Трэцяя чвэрць</item>
+        <item>Чацвёртая чвэрць</item>
+    </string-array>
+
+    <string name="language">Назвы і мовы</string>
+    <string name="appearance">Выгляд</string>
+    <string name="widget1">JTT: адна гадзіна</string>
+    <string name="widget12">JTT: гадзіннік</string>
+    <string name="locale">Мова</string>
+    <string name="locale_default">Прадвызначаная</string>
+
+    <string-array name="theme_names">
+        <item>Празрыстая</item>
+        <item>Цёмная</item>
+        <item>Светлая</item>
+    </string-array>
+
+    <string-array name="widget_theme_names">
+        <item>Празрыстая</item>
+        <item>Цёмная</item>
+        <item>Светлая</item>
+    </string-array>
+
+    <string name="pref_theme">Тэма</string>
+    <string name="pref_widget">Тэма віджэта</string>
+
+    <string name="notification_bell">звон %s</string>
+    <string name="widget_dusk">захад %s</string>
+    <string name="widget_dawn">світанак %s</string>
+    <string name="widget_till">да %s</string>
+    <string name="lbl_astro">астр</string>
+    <string name="lbl_naut">мар</string>
+    <string name="lbl_edo">Эда</string>
+    <string name="lbl_civil">грамадз</string>
+    <string name="lbl_sunrise">усход</string>
+    <string name="lbl_sunset">захад</string>
+    <string name="lbl_day_toki">токі дня</string>
+    <string name="lbl_night_toki">токі ночы</string>
+</resources>

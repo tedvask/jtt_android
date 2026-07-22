@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="2dp" >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp" >
+        <TextView android:id="@+id/r0_glyph" android:layout_width="28dp" android:layout_height="wrap_content"
+            android:textSize="18sp" android:textStyle="bold" android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r0_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textStyle="bold" android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r0_range" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" android:textSize="14sp" android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r0_bell" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp" android:textStyle="bold" android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp" >
+        <TextView android:id="@+id/r1_glyph" android:layout_width="28dp" android:layout_height="wrap_content"
+            android:textSize="18sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r1_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r1_range" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" android:textSize="14sp" android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r1_bell" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp" >
+        <TextView android:id="@+id/r2_glyph" android:layout_width="28dp" android:layout_height="wrap_content"
+            android:textSize="18sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r2_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r2_range" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" android:textSize="14sp" android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r2_bell" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp" >
+        <TextView android:id="@+id/r3_glyph" android:layout_width="28dp" android:layout_height="wrap_content"
+            android:textSize="18sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r3_name" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorPrimary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r3_range" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginRight="10dp" android:textSize="14sp" android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+        <TextView android:id="@+id/r3_bell" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textSize="14sp"  android:textColor="?android:attr/textColorSecondary" android:textIsSelectable="false" />
+    </LinearLayout>
+</LinearLayout>

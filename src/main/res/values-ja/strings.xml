@@ -121,4 +121,15 @@
     <string name="pref_widget">ウィジェットのスタイル</string>
 
     <string name="notification_bell">鐘 %s</string>
+    <string name="lbl_astro">天文</string>
+    <string name="lbl_naut">航海</string>
+    <string name="lbl_edo">江戸</string>
+    <string name="lbl_civil">市民</string>
+    <string name="lbl_sunrise">日の出</string>
+    <string name="lbl_sunset">日の入</string>
+    <string name="lbl_day_toki">昼一刻</string>
+    <string name="lbl_night_toki">夜一刻</string>
+    <string name="widget_dusk">暮 %s</string>
+    <string name="widget_dawn">明 %s</string>
+    <string name="widget_till">〜%s</string>
 </resources>

@@ -124,4 +124,15 @@
     <string name="pref_widget">Стиль виджета</string>
 
     <string name="notification_bell">звон %s</string>
+    <string name="lbl_astro">астр</string>
+    <string name="lbl_naut">мор</string>
+    <string name="lbl_edo">Эдо</string>
+    <string name="lbl_civil">гражд</string>
+    <string name="lbl_sunrise">восход</string>
+    <string name="lbl_sunset">заход</string>
+    <string name="lbl_day_toki">токи дня</string>
+    <string name="lbl_night_toki">токи ночи</string>
+    <string name="widget_dusk">закат %s</string>
+    <string name="widget_dawn">рассвет %s</string>
+    <string name="widget_till">до %s</string>
 </resources>

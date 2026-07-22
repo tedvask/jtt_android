@@ -85,4 +85,15 @@
     <string name="pref_widget">Widget-Theme</string>
 
     <string name="notification_bell">Glocke %s</string>
+    <string name="lbl_astro">astr.</string>
+    <string name="lbl_naut">naut.</string>
+    <string name="lbl_edo">Edo</string>
+    <string name="lbl_civil">bürgerl.</string>
+    <string name="lbl_sunrise">Aufgang</string>
+    <string name="lbl_sunset">Untergang</string>
+    <string name="lbl_day_toki">Tag-Toki</string>
+    <string name="lbl_night_toki">Nacht-Toki</string>
+    <string name="widget_dusk">Dämmerung %s</string>
+    <string name="widget_dawn">Morgengrauen %s</string>
+    <string name="widget_till">bis %s</string>
 </resources>

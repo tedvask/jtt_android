@@ -122,4 +122,15 @@
     <string name="pref_widget">Widget theme</string>
 
     <string name="notification_bell">bell %s</string>
+    <string name="lbl_astro">astro</string>
+    <string name="lbl_naut">naut</string>
+    <string name="lbl_edo">Edo</string>
+    <string name="lbl_civil">civil</string>
+    <string name="lbl_sunrise">sunrise</string>
+    <string name="lbl_sunset">sunset</string>
+    <string name="lbl_day_toki">day toki</string>
+    <string name="lbl_night_toki">night toki</string>
+    <string name="widget_dusk">dusk %s</string>
+    <string name="widget_dawn">dawn %s</string>
+    <string name="widget_till">till %s</string>
 </resources>

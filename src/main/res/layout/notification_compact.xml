@@ -6,24 +6,24 @@
     android:paddingBottom="2dp" >
 
     <TextView
-        android:id="@+id/image"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:textSize="22sp"
-        android:textStyle="bold"
+        android:textSize="14sp"
         android:textColor="?android:attr/textColorPrimary"
         android:textIsSelectable="false" />
 
     <TextView
-        android:id="@+id/title"
+        android:id="@+id/koku"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/image"
+        android:layout_toRightOf="@id/title"
+        android:layout_marginLeft="8dp"
         android:layout_centerVertical="true"
         android:textSize="14sp"
+        android:textStyle="bold"
         android:textColor="?android:attr/textColorPrimary"
         android:textIsSelectable="false" />
 
@@ -41,7 +41,7 @@
         android:id="@+id/bounds"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/title"
+        android:layout_toRightOf="@id/koku"
         android:layout_toLeftOf="@id/bell"
         android:layout_centerVertical="true"
         android:gravity="center_horizontal"

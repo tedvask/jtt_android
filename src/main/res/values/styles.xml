@@ -62,9 +62,9 @@
         <item name="glyph_fill">@color/tab</item>
         <item name="night_fill">@color/night_fill</item>
         <item name="wadokei_fill">@android:color/background_light</item>
-        <item name="widget_background">@color/wadokei_fill</item>
-        <item name="text_color">@android:color/background_dark</item>
-        <item name="text_shadow">@android:color/background_light</item>
+        <item name="widget_background">#FFFAFAFA</item>
+        <item name="text_color">#FF1A1C1E</item>
+        <item name="text_shadow">#00000000</item>
     </style>
 
     <style name="SolidDark">
@@ -74,9 +74,9 @@
         <item name="glyph_fill">@android:color/white</item>
         <item name="night_fill">#444444</item>
         <item name="wadokei_fill">#444444</item>
-        <item name="widget_background">@color/tab</item>
-        <item name="text_color">@android:color/white</item>
-        <item name="text_shadow">#444444</item>
+        <item name="widget_background">#FF101214</item>
+        <item name="text_color">#FFECEFF1</item>
+        <item name="text_shadow">#00000000</item>
     </style>
 
     <style name="JTTTabButton" parent="@android:style/Widget.Button">
